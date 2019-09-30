@@ -1,5 +1,7 @@
 {
   "name": "sampleAppIonic",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
