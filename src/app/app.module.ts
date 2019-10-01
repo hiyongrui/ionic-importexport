@@ -17,7 +17,8 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { FileChooser } from '@ionic-native/file-chooser/ngx';
 import { FilePath } from '@ionic-native/file-path/ngx';
 import { EmailComposer } from '@ionic-native/email-composer/ngx';
-
+import { IOSFilePicker } from '@ionic-native/file-picker/ngx';
+import { Chooser } from '@ionic-native/chooser/ngx';
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
@@ -29,6 +30,8 @@ import { EmailComposer } from '@ionic-native/email-composer/ngx';
     FileChooser,
     FilePath,
     EmailComposer,
+    IOSFilePicker,
+    Chooser,
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }

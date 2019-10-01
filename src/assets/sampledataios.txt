@@ -1,0 +1,13 @@
+{
+    "fruit": "Apple",
+    "size": "Large",
+    "color": "Red",
+    "array": [
+        {
+            "firstobj": "firstval"
+        },
+        {
+            "secondobj": "secondval"
+        }
+        ]
+}
