@@ -19,11 +19,12 @@ export class Tab1Page {
   //https://medium.com/dev-blogs/complete-guide-of-file-handling-in-ionic-f6e5a21419b3
   //https://forum.ionicframework.com/t/using-filechooser-and-filepath-to-read-text-file/125645
   
+  //TODO: try for iphone download file into app folder if created > https://stackoverflow.com/questions/27150343/creation-of-folder-inside-the-internal-storage
+  //https://stackoverflow.com/questions/51565832/bug-in-ionic-native-file-plugin-code-5-message-encoding-err
+  //https://stackoverflow.com/a/49953758
+
   constructor(private file: File, private fileSystem: File, private toastCtrl: ToastController, private camera: Camera, 
     private http: HttpClient, private nativehttp: HTTP, private fileChooser: FileChooser, private filePath: FilePath, private email: EmailComposer) {
-    this.http.get("assets/sampledata.json").subscribe(data => {
-      console.warn(data);
-    })
   }
 
   exportJSON() {
@@ -41,7 +42,9 @@ export class Tab1Page {
       ]
     }
     // console.warn(json); 
+    
     let path = this.fileSystem.externalRootDirectory + '/Download/'; // for Android https://stackoverflow.com/questions/49051139/saving-file-to-downloads-directory-using-ionic-3
+
     this.file.writeFile(path, 'sampleionicfile.json', JSON.stringify(json), {replace:true}).then(() => {
       this.presentToastWithOptions("json file exported!!");      
     }, (err) => this.presentToastWithOptions("Sorry error" + err));
@@ -50,28 +53,9 @@ export class Tab1Page {
 
   }
 
-  async presentToastWithOptions(text) {
-    const toast = await this.toastCtrl.create({
-      header: text,
-      duration: 3000,
-      position: 'bottom',
-      buttons: [{
-        text: 'CLOSE',
-        role: 'cancel'
-      }]
-    });
-    toast.present();
-  }
-
-  async readFile(resolvedFilePath?) {
-    let path = this.fileSystem.externalRootDirectory + '/Download/'; // for Android
-    // this.file.readAsText(path, 'sampleionicfile.json').then(val => {
-    //   console.error(val);
-    // })
-    // this.http.get(path).subscribe(data => {
-    //   console.error(data);
-    // })
-    console.warn("path", path);
+  readFile(resolvedFilePath?) {
+    let path = this.fileSystem.externalRootDirectory + '/Download/'; // for Android https://stackoverflow.com/questions/49051139/saving-file-to-downloads-directory-using-ionic-3    
+    console.warn("path for android download", path);
     this.file.readAsBinaryString(path, 'sampleionicfile.json').then(val => {
       console.error("data", val);
       let myObj = JSON.parse(val);
@@ -80,31 +64,26 @@ export class Tab1Page {
     })
   }
   
-    
-  getImage() {
-    const options: CameraOptions = {
-      quality: 100,
-      destinationType: this.camera.DestinationType.FILE_URI,
-      sourceType: this.camera.PictureSourceType.PHOTOLIBRARY
-    }
-    this.camera.getPicture(options).then((imageData) => {
-      // this.imageURI = imageData;
-      console.warn("image data", imageData);
-    }, (err) => {
-      console.log("err", err);
-      // this.presentToast(err);
-    });
+  //TODO: try to read file from ios, if fileChooser is for android only, then use filepicker and debug the encoding error code 5 msg
+  openIOS() {
+
   }
 
+
   openFile() {
-    this.fileChooser.open().then(uri => {
+    this.fileChooser.open({mime: "text/plain"}).then(uri => {
       console.warn("uri", uri);
       this.filePath.resolveNativePath(uri).then(resolvedFilePath => { //https://forum.ionicframework.com/t/using-filechooser-and-filepath-to-read-text-file/125645/2
         console.error("resolved", resolvedFilePath);
         this.readFile(resolvedFilePath);
       })
+    }).catch(err => {
+      console.warn("err opening file json", err);
     })
   }
+
+
+
 
   //TODO: open email with json file attached and a template of text message
   openEmail() {
@@ -128,10 +107,22 @@ export class Tab1Page {
     this.email.open(emailObj).then(data => {
       console.warn("email .then()", data);
       this.presentToastWithOptions("email opened .then()");
+      //TODO: removeFile() json after email closed
     });
   }
   
 
-  //TODO:
+  async presentToastWithOptions(text) {
+    const toast = await this.toastCtrl.create({
+      header: text,
+      duration: 3000,
+      position: 'bottom',
+      buttons: [{
+        text: 'CLOSE',
+        role: 'cancel'
+      }]
+    });
+    toast.present();
+  }
 
 }
