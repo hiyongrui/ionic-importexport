@@ -73,10 +73,13 @@ export class Tab1Page {
   openIOS() {
     this.filePicker.pickFile("public.text").then(uri => {
       console.warn("uri ios", uri);
-      this.file.resolveLocalFilesystemUrl(uri).then(fileEntry => { 
-        console.warn("file entry ios available", fileEntry);
-      }).catch(err => console.warn("file entry error ios", err))
+  
       let correctPath = "file:///" + uri.substr(0, uri.lastIndexOf('/') + 1);
+
+      this.file.resolveLocalFilesystemUrl(correctPath).then(fileEntry => { 
+        console.warn("file entry ios available update", fileEntry);
+      }).catch(err => console.warn("file entry error ios update", err))
+
       let currentName = uri.substring(uri.lastIndexOf('/') + 1);
       console.warn("path ios", correctPath);
       console.error("name ios", currentName);
