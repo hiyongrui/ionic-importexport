@@ -32,6 +32,7 @@
     "@ionic-native/splash-screen": "^5.0.0",
     "@ionic-native/status-bar": "^5.0.0",
     "@ionic/angular": "^4.7.1",
+    "cordova-android": "8.1.0",
     "cordova-plugin-add-swift-support": "^2.0.2",
     "cordova-plugin-advanced-http": "2.1.1",
     "cordova-plugin-camera": "4.1.0",
@@ -102,6 +103,8 @@
       "cordova-plugin-filepicker": {},
       "cordova-plugin-chooser": {}
     },
-    "platforms": []
+    "platforms": [
+      "android"
+    ]
   }
 }

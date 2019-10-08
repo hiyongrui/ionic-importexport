@@ -52,7 +52,7 @@ export class Tab1Page {
     this.file.writeFile(path, 'sampleForEmailJSON.txt', JSON.stringify(json), {replace:true}).then(() => {
       this.presentToastWithOptions("json file exported!!");
       console.warn("json file exported!");
-      this.openEmail(path, 'sampleForEmail.txt');
+      this.openEmail(path, 'sampleForEmailJSON.txt');
     }, (err) => {
       this.presentToastWithOptions("Sorry error" + err);
       console.error("err exporting", err);
@@ -62,10 +62,15 @@ export class Tab1Page {
 
   }
 
-  readFile(resolvedFilePath, filename) {
-    console.warn("path resolved", resolvedFilePath);
-    console.error("file name", filename);
-    this.file.readAsText(resolvedFilePath, filename).then(val => {
+  readFile(fullPath) {
+
+    let filePath = fullPath.substring(0, fullPath.lastIndexOf("/") + 1);
+    let fileName = fullPath.substring(filePath.length);
+
+    console.warn("file path", filePath);
+    console.error("file name", fileName);
+
+    this.file.readAsText(filePath, fileName).then(val => {
       console.error("data", val);
       let myObj = JSON.parse(val);
       console.warn("my obj", myObj);
@@ -78,11 +83,7 @@ export class Tab1Page {
     this.filePicker.pickFile("public.text").then(uri => {
       let resolvedFilePath = "file:///" + uri;
       console.warn("resolvedfilepath ios", resolvedFilePath);
-      this.file.resolveLocalFilesystemUrl(resolvedFilePath).then(fileEntry => {
-        console.error("file entry ios", fileEntry);
-        let path = resolvedFilePath.substring(0, resolvedFilePath.lastIndexOf(fileEntry.name));
-        this.readFile(path, fileEntry.name);
-      }).catch(err => this.throwError("file entry ios error", err));
+      this.readFile(resolvedFilePath);
     }).catch(err => this.throwError("file picker ios error", err));
   }
 
@@ -91,17 +92,15 @@ export class Tab1Page {
     this.presentToastWithOptions(msg);
   }
 
+
   openAndroid() {
     this.fileChooser.open({mime: "text/plain"}).then(uri => {
       console.warn("uri android", uri);
-      this.file.resolveLocalFilesystemUrl(uri).then(fileEntry => { //https://stackoverflow.com/questions/46967119/how-to-get-file-name-and-mime-type-before-upload-in-ionic2
-        console.log("file entry android", fileEntry);
-        this.filePath.resolveNativePath(uri).then(resolvedFilePath => { //https://forum.ionicframework.com/t/using-filechooser-and-filepath-to-read-text-file/125645/2
-          console.error("resolved native path android", resolvedFilePath);
-          let path = resolvedFilePath.substring(0, resolvedFilePath.lastIndexOf(fileEntry.name));
-          this.readFile(path, fileEntry.name);
-        }).catch(err => this.throwError("resolve native path android error", err));
-      }).catch(err => this.throwError("file entry android error", err));
+     //https://stackoverflow.com/questions/46967119/how-to-get-file-name-and-mime-type-before-upload-in-ionic2      
+      this.filePath.resolveNativePath(uri).then(resolvedFilePath => { //https://forum.ionicframework.com/t/using-filechooser-and-filepath-to-read-text-file/125645/2
+        console.error("resolved native path android", resolvedFilePath);
+        this.readFile(resolvedFilePath);
+      }).catch(err => this.throwError("resolve native path android error", err));
     }).catch(err => this.throwError("file chooser android error", err));
   }
 
@@ -122,20 +121,32 @@ export class Tab1Page {
       console.warn("email .then()", data);
       this.presentToastWithOptions("email opened .then()");
       //TODO: removeFile() json after email closed
-      this.file.removeFile(path, filename).then(data => {
-        console.warn("removed", data)
-      }).catch(err => console.warn("err removing", err));
+      setTimeout(() => {
+        this.file.removeFile(path, filename);
+      }, 300);
     });
   }
   
 
 
-  nativeChooser() { //https://ionicframework.com/docs/native/chooser
-    this.chooser.getFile().then(file => {
-      console.warn("native file", file)
-    }).catch(err => {
-      console.error("err native", err);
+  async nativeChooser() { //https://ionicframework.com/docs/native/chooser
+ 
+      // let file = await (<any>window).chooser.getFile(); //https://github.com/cyph/cordova-plugin-chooser/issues/3, https://github.com/ionic-team/ionic-native/issues/2768
+ 
+    (<any>window).chooser.getFile().then(file => {
+      console.warn("native fileg", file);
+
+      this.filePath.resolveNativePath(file.uri).then(resolvedFilePath => {
+        console.warn("resolved file path", resolvedFilePath);
+
+        let uriWithoutID = resolvedFilePath.substring(0, resolvedFilePath.lastIndexOf("/"));
+        console.warn("uri without id", uriWithoutID);
+
+        // this.readFile(resolvedFilePath, file.name);
+        this.readFile(resolvedFilePath);
+      })
     })
+      
   }
 
   name: string;
@@ -149,7 +160,9 @@ export class Tab1Page {
     let regExp = new RegExp("[" + regexList.join("") + "]", 'g');
     console.log(regExp);
     let matches = Array.from(new Set(this.name.match(regExp)));
+    console.warn(matches);
     this.presentToastWithOptions("Special characters \n new line \n" + matches.join(" "));
+    matches.length ? console.warn("matches!!!") : console.error("invalid");
     //https://stackoverflow.com/questions/23136947/javascript-regex-to-return-letters-only
   }
 
